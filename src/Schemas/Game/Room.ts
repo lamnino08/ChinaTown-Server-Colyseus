@@ -8,23 +8,16 @@ export class MyRoom extends Room<RoomState> {
 
     // Set the initial state when the room is created
     onCreate(options: any) {
-        options.maxClients = 5;
-        
         this.setState(new RoomState());
-
-        if (options.players) {
-            for (const player of options.players) {
-                // this.state.players.set(player.name, {
-                //     name: player.name,
-                //     color: player.color,
-                // });
-            }
-        }
     }
 
     // Handle when a client joins the room
     onJoin(client: Client, options: any) {
-        console.log(`${client.sessionId} joined the room`);
+        console.log(`${client.sessionId} join the room`);
+
+        const playerName : string = options.playerName;
+        const color : number = options.color;
+        this.state.AddPlayer(client.sessionId, playerName, color);
     }
 
     // Handle when a client leaves the room

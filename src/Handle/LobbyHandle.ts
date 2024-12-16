@@ -52,16 +52,15 @@ export default class LobbyHandle {
         console.log(`On message start game`);
         if (this.lobby.state.IsAllReady())
         {
-            this.createGameRoom(this.lobby.state.players);
+            this.createGameRoom();
         } else
         {
             client.send(MessageServerToClient.ERROR, { message: "Not all players are ready." });
         }
     }
 
-    async createGameRoom(players : MapSchema<PlayerLobby>) {
-        const room = await matchMaker.createRoom("room", { players: Array.from(players.values()) });
-        console.log("OKKK");
+    async createGameRoom() {
+        const room = await matchMaker.createRoom("room", {});
 
         this.lobby.broadcast(MessageServerToClient.GAME_START, { roomId: room.roomId });
 
