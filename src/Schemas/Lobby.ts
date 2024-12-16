@@ -3,6 +3,7 @@ import http from "http";
 import PlayerLobby from "./PlayerLobby";
 import LobbyState from "./LobbyState";
 import LobbyHandle from "../Handle/LobbyHandle";
+import { MessageClientToServerLobby } from "../Enum/MessageClientToServerLobby";
 
 
 export class Lobby extends Room<LobbyState> {
@@ -14,7 +15,7 @@ export class Lobby extends Room<LobbyState> {
         this.setState(new LobbyState());
 
         this.lobbyHandel = new LobbyHandle(this);
-        this.lobbyHandel.RegisHandle();
+        this.lobbyHandel.RegisHandle(MessageClientToServerLobby);
     }
 
     // Handle when a client joins the room
@@ -28,6 +29,7 @@ export class Lobby extends Room<LobbyState> {
     // Handle when a client leaves the room
     onLeave(client: Client, consented: boolean) {
         console.log(`${client.sessionId} left the room`);
+        this.state.PlayerLeft(client.sessionId);
     }
 
     // Handle when the room is disposed

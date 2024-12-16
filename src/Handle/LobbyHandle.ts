@@ -1,7 +1,8 @@
 import { Client } from "colyseus";
 import { Lobby } from "../Schemas/Lobby";
 import { MessageClientToServer } from "../Enum/MessageClientToServer";
-import { MessageServerToClient } from "../Enum/MessageServerToClient";
+import { MessageServerToClient } from "../Enum/MessageServerToClientLobby";
+import { MessageClientToServerLobby } from "../Enum/MessageClientToServerLobby"
 
 export default class LobbyHandle {
     lobby: Lobby;
@@ -10,27 +11,37 @@ export default class LobbyHandle {
         this.lobby = lobby;
     }
 
-    public RegisHandle() {
-        // Đăng ký handler cho sự kiện "select_color"
-        this.lobby.onMessage(MessageClientToServer.SelectColor, this.handleSelectColor.bind(this));
-
-        // Đăng ký thêm các sự kiện khác nếu cần
-        this.lobby.onMessage("another_event", this.handleAnotherEvent.bind(this));
+    public RegisHandle(messageClientToServerLobby: typeof MessageClientToServerLobby) {
+        const messageEntries = Object.entries(messageClientToServerLobby);
+    
+        messageEntries.forEach(([key, value]) => {
+            const handlerName = `handle_${key}`; 
+    
+            if (typeof (this as any)[handlerName] === "function") {
+                this.lobby.onMessage(value as string, (this as any)[handlerName].bind(this));
+                console.log(`Registered handler for: ${value} -> ${handlerName}`);
+            } else {
+                console.warn(`Handler ${handlerName} does not exist for message type: ${value}`);
+            }
+        });
     }
+    
 
-    private handleSelectColor(client: Client, message: { color: string }) {
+    private handle_PlayerSelectColor(client: Client, message: { color: number }) {
         console.log(`Client ${client.sessionId} selected color: ${message.color}`);
 
-        if (this.lobby.state.colors.has(message.color)) {
-            this.lobby.state.RegisterColorToPlayer(message.color, client.sessionId);
-            // Broadcast đến tất cả client
-            this.lobby.broadcast(MessageServerToClient.PlayerChooseColor, {
+        if (this.lobby.state.colors[message.color]) {
+            // Handle back end
+            this.lobby.state.PlayerReady(message.color, client.sessionId);
+
+            // Response
+            this.lobby.broadcast(MessageServerToClient.PLAYER_CHOOSE_COLOR, {
                 sessionId: client.sessionId,
                 color: message.color,
             });
         } else {
-            // Gửi lỗi nếu màu không hợp lệ
-            client.send("error", { message: "Invalid color selected!" });
+            // Erorr
+            client.send("MessageServerToClient.ERROR", { message: "Bad Server" });
         }
     }
 

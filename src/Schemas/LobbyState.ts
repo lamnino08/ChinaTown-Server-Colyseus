@@ -2,27 +2,39 @@ import { Schema, MapSchema, type, ArraySchema } from "@colyseus/schema";
 import PlayerLobby from "./PlayerLobby";
 
 export default class LobbyState extends Schema {
-    // @type([ "int32" ]) colors : ArraySchema<number> = new ArraySchema<number>();
-    @type({map: "string"}) colors = new MapSchema<string>();
+    @type([ "boolean" ]) colors = new ArraySchema<boolean>();
 
     @type({ map: PlayerLobby }) players = new MapSchema<PlayerLobby>();
 
     constructor() {
         super();
-        this.colors.set("0", "red");
-        this.colors.set("1", "yellow");
-        this.colors.set("2", "blue");
-        this.colors.set("3", "green");
-        this.colors.set("4", "black");
+        this.colors.push(true, true, true, true, true);
     }
 
-    public RegisterColorToPlayer(color : string, sessionId : string): void 
+    public PlayerLeft(sessionId : string)
     {
-        if (this.colors.has(color))
-        {
-            this.players.get(sessionId)?.SetColor(color);
-            this.colors.delete(color);
-            console.log("remove color"+color);
+        const player = this.players.get(sessionId);
+
+        if (player) {
+            if (player.color !== -1) {
+                this.colors[player.color] = true; 
+            }
+
+            this.players.delete(sessionId);
+        }
+    }
+
+    public PlayerReady(color : number, sessionId : string): void 
+    {
+
+        if (this.colors[color]) { // Check if the color is available
+            const player = this.players.get(sessionId);
+            if (player) {
+                player.Ready(color); 
+                this.colors[color] = false; 
+            }
+        } else {
+            console.error(`Color ${color} is not available.`);
         }
     }
 }
