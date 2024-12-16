@@ -1,9 +1,9 @@
 import { Client, Room } from "colyseus";
 import http from "http";
-import PlayerLobby from "./PlayerLobby";
-import LobbyState from "./LobbyState";
-import LobbyHandle from "../Handle/LobbyHandle";
-import { MessageClientToServerLobby } from "../Enum/MessageClientToServerLobby";
+import PlayerLobby from "@Schemas/Lobby/PlayerLobby";
+import LobbyState from "@Schemas/Lobby/LobbyState";
+import LobbyHandle from "@Handle/LobbyHandle";
+import { MessageClientToServerLobby } from "@Enum/MessageClientToServerLobby";
 
 
 export class Lobby extends Room<LobbyState> {

@@ -1,8 +1,8 @@
 import { Server, LobbyRoom, matchMaker } from "colyseus";
 import { createServer } from "http";
 import express from "express";
-import { MyRoom } from "./Schemas/Room";
-import { Lobby } from "./Schemas/Lobby";
+import { MyRoom } from "./Schemas/Game/Room";
+import { Lobby } from "./Schemas/Lobby/Lobby";
 
 const port = 2567;
 const app = express();

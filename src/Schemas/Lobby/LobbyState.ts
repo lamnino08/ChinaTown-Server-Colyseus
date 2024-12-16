@@ -1,5 +1,5 @@
 import { Schema, MapSchema, type, ArraySchema } from "@colyseus/schema";
-import PlayerLobby from "./PlayerLobby";
+import PlayerLobby from "@Schemas/Lobby/PlayerLobby";
 
 export default class LobbyState extends Schema {
     @type([ "boolean" ]) colors = new ArraySchema<boolean>();
@@ -24,7 +24,7 @@ export default class LobbyState extends Schema {
         }
     }
 
-    public PlayerReady(color : number, sessionId : string): void 
+    public PlayerReady(color : number, sessionId : string): boolean 
     {
 
         if (this.colors[color]) { // Check if the color is available
@@ -32,9 +32,20 @@ export default class LobbyState extends Schema {
             if (player) {
                 player.Ready(color); 
                 this.colors[color] = false; 
+                return this.IsAllReady();
             }
         } else {
             console.error(`Color ${color} is not available.`);
         }
+        return false;
+    }
+
+    public IsAllReady(): boolean {
+        for (const player of this.players.values()) {
+            if (!player.isReady) {
+                return false; 
+            }
+        }
+        return true; 
     }
 }

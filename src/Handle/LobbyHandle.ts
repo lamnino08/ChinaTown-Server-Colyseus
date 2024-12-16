@@ -1,8 +1,10 @@
 import { Client } from "colyseus";
-import { Lobby } from "../Schemas/Lobby";
-import { MessageClientToServer } from "../Enum/MessageClientToServer";
+import { Lobby } from "../Schemas/Lobby/Lobby";
+import { matchMaker } from "colyseus";
 import { MessageServerToClient } from "../Enum/MessageServerToClientLobby";
 import { MessageClientToServerLobby } from "../Enum/MessageClientToServerLobby"
+import { MapSchema } from "@colyseus/schema";
+import PlayerLobby from "@Schemas/Lobby/PlayerLobby";
 
 export default class LobbyHandle {
     lobby: Lobby;
@@ -32,12 +34,13 @@ export default class LobbyHandle {
 
         if (this.lobby.state.colors[message.color]) {
             // Handle back end
-            this.lobby.state.PlayerReady(message.color, client.sessionId);
+            var isAllReady : boolean = this.lobby.state.PlayerReady(message.color, client.sessionId);
 
             // Response
             this.lobby.broadcast(MessageServerToClient.PLAYER_CHOOSE_COLOR, {
                 sessionId: client.sessionId,
                 color: message.color,
+                isAllReady: isAllReady
             });
         } else {
             // Erorr
@@ -45,7 +48,23 @@ export default class LobbyHandle {
         }
     }
 
-    private handleAnotherEvent(client: Client, message: any) {
-        console.log(`Received another_event from ${client.sessionId}`, message);
+    private handle_StartGame(client: Client, message: any) {
+        console.log(`On message start game`);
+        if (this.lobby.state.IsAllReady())
+        {
+            this.createGameRoom(this.lobby.state.players);
+        } else
+        {
+            client.send(MessageServerToClient.ERROR, { message: "Not all players are ready." });
+        }
+    }
+
+    async createGameRoom(players : MapSchema<PlayerLobby>) {
+        const room = await matchMaker.createRoom("room", { players: Array.from(players.values()) });
+        console.log("OKKK");
+
+        this.lobby.broadcast(MessageServerToClient.GAME_START, { roomId: room.roomId });
+
+        this.lobby.disconnect();
     }
 }

@@ -1,11 +1,7 @@
 import { Room, Client } from "colyseus";
 import http from "http";
-import { Schema, MapSchema, type } from "@colyseus/schema";
-import Player from "./Player";
 
-export class RoomState extends Schema {
-    @type({ map: Player }) players = new MapSchema<Player>();
-}
+import { RoomState } from "@Schemas/Game/RoomState";
 
 export class MyRoom extends Room<RoomState> {
     static async onAuth(token: string, request: http.IncomingMessage) { }
@@ -16,20 +12,19 @@ export class MyRoom extends Room<RoomState> {
         
         this.setState(new RoomState());
 
-        // Listen for client messages
-        this.onMessage("chat", (client, message) => {
-            console.log(`Received message from ${client.sessionId}: ${message}`);
-
-            // Broadcast the message to all clients
-            this.broadcast("chat", `${client.sessionId}: ${message}`);
-        });
+        if (options.players) {
+            for (const player of options.players) {
+                // this.state.players.set(player.name, {
+                //     name: player.name,
+                //     color: player.color,
+                // });
+            }
+        }
     }
 
     // Handle when a client joins the room
     onJoin(client: Client, options: any) {
         console.log(`${client.sessionId} joined the room`);
-        const player = new Player(client.sessionId, options.playerName);
-        this.state.players.set(client.sessionId, player);
     }
 
     // Handle when a client leaves the room
