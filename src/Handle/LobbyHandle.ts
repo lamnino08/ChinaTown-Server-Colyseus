@@ -1,8 +1,8 @@
 import { Client } from "colyseus";
 import { Lobby } from "../Schemas/Lobby/Lobby";
 import { matchMaker } from "colyseus";
-import { MessageServerToClient } from "../Enum/MessageServerToClientLobby";
-import { MessageClientToServerLobby } from "../Enum/MessageClientToServerLobby"
+import { MessageServerToClient } from "../Enum/Server To Client/MessageServerToClientLobby";
+import { MessageClientToServerLobby } from "../Enum/Client to Server/MessageClientToServerLobby"
 import { MapSchema } from "@colyseus/schema";
 import PlayerLobby from "@Schemas/Lobby/PlayerLobby";
 

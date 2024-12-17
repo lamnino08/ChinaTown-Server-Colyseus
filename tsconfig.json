@@ -12,7 +12,8 @@
       "paths": {
         "@Handle/*": ["./src/Handle/*"], 
         "@Schemas/*": ["./src/Schemas/*"],  
-        "@Enum/*": ["./src/Enum/*"] 
+        "@Enum/*": ["./src/Enum/*"],
+        "@Util/*": ["./src/Utils/*"],
       }
     }
   }

@@ -2,13 +2,19 @@ import { Room, Client } from "colyseus";
 import http from "http";
 
 import { RoomState } from "@Schemas/Game/RoomState";
+import GameHandle from "@Handle/GameHandle";
+import { MessageClientToServerGame } from "@Enum/Client to Server/MessageClientToServerGame";
 
 export class MyRoom extends Room<RoomState> {
     static async onAuth(token: string, request: http.IncomingMessage) { }
 
+    gameHandel: GameHandle | undefined;
+
     // Set the initial state when the room is created
     onCreate(options: any) {
         this.setState(new RoomState());
+        this.gameHandel = new GameHandle(this);
+        this.gameHandel.RegisHandle(MessageClientToServerGame);
     }
 
     // Handle when a client joins the room

@@ -3,7 +3,7 @@ import http from "http";
 import PlayerLobby from "@Schemas/Lobby/PlayerLobby";
 import LobbyState from "@Schemas/Lobby/LobbyState";
 import LobbyHandle from "@Handle/LobbyHandle";
-import { MessageClientToServerLobby } from "@Enum/MessageClientToServerLobby";
+import { MessageClientToServerLobby } from "@Enum/Client to Server/MessageClientToServerLobby";
 
 
 export class Lobby extends Room<LobbyState> {
