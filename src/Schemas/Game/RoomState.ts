@@ -1,5 +1,6 @@
 import { Schema, MapSchema, type } from "@colyseus/schema";
 import { GamePhase } from "@Enum/GamePhase";
+import ReturnCardDeal from "@models/CardDealResult";
 import Player from "@Schemas/Game/Player";
 import { Util } from '@Util/Util'
 
@@ -60,7 +61,7 @@ export class RoomState extends Schema {
         // }
         const numberPlayer = this.players.size;
 
-        const numberStoreCard = Util.numberStoreCard(this.year, numberPlayer);
+        const numberStoreCard = Util.numberStoreCard(this.year, numberPlayer); // number of card depend on number of player in room 
         const storeCards: number[][] = [];
 
         for (let playerIndex = 0; playerIndex < numberPlayer; playerIndex++) {
@@ -78,7 +79,7 @@ export class RoomState extends Schema {
             }
 
             storeCards.push(storeCardsOfPlayer);
-        }
+        } // random card
 
         return storeCards;
     }
@@ -88,11 +89,34 @@ export class RoomState extends Schema {
         return this.distributeTileCard();
     }
 
-    public receiveResultChoseTileCard(tileReturn: { tile: number }[]): void {
-        for (const tileCardReturn of tileReturn) {
-            this.tile[tileCardReturn.tile] = 0; // Reset tile to 0 (unoccupied)
+    public receiveResultChoseTileCard(sessionId : string, returnCards : ReturnCardDeal[]): boolean {
+        const player: Player | undefined = this.players.get(sessionId);
+
+        if (!player) {
+            console.error(`[Return card deal] Player with session ID ${sessionId} not found.`);
+            return false;
         }
+
+        for (const card  of returnCards) {
+            if (card.isChossen)
+            {
+                player.AddTile(card.tile);
+            }
+        }
+
+        player.isReady = true;
+
+        return this.IsAllReady()
     }
+
+    public IsAllReady() : boolean
+    {
+        for (const player of this.players.values())
+        {
+            if (player.isReady == false) return false;
+        }
+        return true;
+    }   
 }
 
 // Utility class for random number generation

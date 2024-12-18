@@ -14,6 +14,7 @@
         "@Schemas/*": ["./src/Schemas/*"],  
         "@Enum/*": ["./src/Enum/*"],
         "@Util/*": ["./src/Utils/*"],
+        "@models/*": ["./src/models/*"]
       }
     }
   }

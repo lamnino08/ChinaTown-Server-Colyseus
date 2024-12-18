@@ -2,6 +2,7 @@ import { Client } from "colyseus";
 import { MessageClientToServerGame } from "../Enum/Client to Server/MessageClientToServerGame"
 import { MessageServerToClientGame } from "../Enum/Server To Client/MessageServerToClientGame"
 import { MyRoom } from "@Schemas/Game/Room";
+import CardDealResult from "@models/CardDealResult";
 
 export default class GameHandle {
     room: MyRoom;
@@ -27,6 +28,8 @@ export default class GameHandle {
     
 
     private handle_NewYear(client: Client, message: { color: number }) : void {
+        console.log(`Start game`);
+
         const listTileCards : number[][] = this.room.state.distributeTileCard();
 
         const clients: Client[] = Array.from(this.room.clients);
@@ -41,13 +44,35 @@ export default class GameHandle {
 
     private handle_ConfirmTileCard(client: Client, message: any)
     {
+        console.log(`Player sessionId ${client.sessionId} return cards`);
+        
         const { cards } = message;
 
         if (Array.isArray(cards)) {
-            cards.forEach(card => {
-                const tile : number = card.tile;
-                const isChosen : boolean = card.isChosse;
+            const returnCards : CardDealResult[] = cards.map((card) => {
+                console.log(`${card.tile}: ${card.isChossen}`);
+                return new CardDealResult(card.tile, card.isChossen);
+            })
+
+            const isAllReturnCard : Boolean = this.room.state.receiveResultChoseTileCard(client.sessionId, returnCards);
+
+            const ChossenCard : number[] = returnCards
+            .filter((card) => card.isChossen == true)
+            .map((card) => card.tile);
+
+            this.room.broadcast(MessageServerToClientGame.PLAYER_DONE_DEAL_TILE_CARD, { 
+                sessionId: client.sessionId,  
+                cards: ChossenCard
             });
+
+            if (isAllReturnCard)
+            {
+                console.log("On all player done deal tile card");
+                const liststoreCards : number[][] = this.room.state.distributeStoreCard();
+                this.room.broadcast(MessageServerToClientGame.ALL_DONE_DEAL_TILE_CARD, {
+                    liststoreCards: liststoreCards
+                });
+            }
         } else {
             console.log("Invalid message format: 'cards' is not an array.");
         }
