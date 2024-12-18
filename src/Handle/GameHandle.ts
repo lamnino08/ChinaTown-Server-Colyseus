@@ -26,17 +26,30 @@ export default class GameHandle {
     }
     
 
-    private handle_NewYear(client: Client, message: { color: number }) {
-        // console.log(`Client ${client.sessionId} selected color: ${message.color}`);
+    private handle_NewYear(client: Client, message: { color: number }) : void {
         const listTileCards : number[][] = this.room.state.distributeTileCard();
 
         const clients: Client[] = Array.from(this.room.clients);
 
-        listTileCards.forEach((tileCards, index) => {
-            const targetClient = clients[index];
-            if (targetClient) {
-                targetClient.send(MessageServerToClientGame.TILE_CARDS, { cards: tileCards });
+        clients.forEach((client, index) => {
+            const cards = listTileCards[index];
+            if (client) {
+                client.send(MessageServerToClientGame.TILE_CARDS, { cards: cards });
             }
         });
+    }
+
+    private handle_ConfirmTileCard(client: Client, message: any)
+    {
+        const { cards } = message;
+
+        if (Array.isArray(cards)) {
+            cards.forEach(card => {
+                const tile : number = card.tile;
+                const isChosen : boolean = card.isChosse;
+            });
+        } else {
+            console.log("Invalid message format: 'cards' is not an array.");
+        }
     }
 }
