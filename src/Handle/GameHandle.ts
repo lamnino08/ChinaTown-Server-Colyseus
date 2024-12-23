@@ -9,13 +9,14 @@ export default class GameHandle {
 
     constructor(room: MyRoom) {
         this.room = room;
+        this.RegisHandle(MessageClientToServerGame);
     }
 
     public RegisHandle(messageClientToServerGame: typeof MessageClientToServerGame) {
         const messageEntries = Object.entries(messageClientToServerGame);
     
         messageEntries.forEach(([key, value]) => {
-            const handlerName = `handle_${key}`; 
+            const handlerName = `handle_${key}`;
     
             if (typeof (this as any)[handlerName] === "function") {
                 this.room.onMessage(value as string, (this as any)[handlerName].bind(this));
@@ -25,7 +26,6 @@ export default class GameHandle {
             }
         });
     }
-    
 
     private handle_NewYear(client: Client, message: { color: number }) : void {
         console.log(`Start game`);
@@ -60,10 +60,8 @@ export default class GameHandle {
             .filter((card) => card.isChossen == true)
             .map((card) => card.tile);
 
-            this.room.broadcast(MessageServerToClientGame.PLAYER_DONE_DEAL_TILE_CARD, { 
-                sessionId: client.sessionId,  
-                cards: ChossenCard
-            });
+            // this.room.send(client, MessageServerToClientGame.PLAYER_DONE_DEAL_TILE_CARD );
+            client.send(MessageServerToClientGame.PLAYER_DONE_DEAL_TILE_CARD);
 
             if (isAllReturnCard)
             {
@@ -77,4 +75,6 @@ export default class GameHandle {
             console.log("Invalid message format: 'cards' is not an array.");
         }
     }
+
+
 }

@@ -54,6 +54,7 @@ export class RoomState extends Schema {
 
         return tiles;
     }
+    
 
     public distributeStoreCard(): number[][] {
         // if (numberPlayer < 3 || numberPlayer > 5) {
